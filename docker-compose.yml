@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+
+ service1:
+  image: php:7.0-apache
+  volumes:
+   - /root/project/src/:/var/www/html
+  ports:
+   - 80:80
+
+  deploy:
+   mode: replicated
+   replicas: 6
+   resources:
+    limits:
+     cpus: '0.25'
+     memory: 512M
+
+   restart_policy:
+     condition: on-failure
+     delay: 5s
+     max_attempts: 3 
+     window: 120s
+
+   update_config: 
+     parallelism: 1
+     delay: 10s
+     failure_action: continue
+     monitor: 10s
+     max_failure_ratio: 0.3
+
+   placement:
+    constraints: [node.role == manager]
+
+ service2:
+  image: alpine
+  depends_on:
+  - service1 
